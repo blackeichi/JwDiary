@@ -1,9 +1,8 @@
 import React, { useRef, useState } from "react";
 import { Animated, PanResponder, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native";
-import { useRecoilState } from "recoil";
 import styled from "styled-components/native";
-import { atomTheme } from "../utils/atom";
+import { useDB } from "../utils/context";
 
 const Container = styled.View`
   flex: 1;
@@ -35,7 +34,7 @@ const ChoiceBtn = styled.TouchableOpacity`
 `;
 
 export const ChoiceTheme = () => {
-  const [atom, setAtom] = useRecoilState(atomTheme);
+  const realm = useDB();
   const [dark, setDark] = useState(true);
   const position = useRef(new Animated.Value(0)).current;
   const position2 = useRef(new Animated.Value(0)).current;
@@ -104,6 +103,19 @@ export const ChoiceTheme = () => {
       },
     })
   ).current;
+  const onSubmit = () => {
+    realm.write(() => {
+      if (dark) {
+        realm.create("Theme", {
+          themecolr: "dark",
+        });
+      } else {
+        realm.create("Theme", {
+          themecolr: "light",
+        });
+      }
+    });
+  };
   return (
     <Container>
       <CardContainer>
@@ -128,15 +140,7 @@ export const ChoiceTheme = () => {
           <Text>hello</Text>
         </Card>
       </CardContainer>
-      <ChoiceBtn
-        onPress={() => {
-          if (dark) {
-            setAtom("dark");
-          } else {
-            setAtom("light");
-          }
-        }}
-      >
+      <ChoiceBtn onPress={onSubmit}>
         <Text>선택</Text>
       </ChoiceBtn>
       <Info>카드를 드래그하여 옆으로 넘기세요.</Info>
